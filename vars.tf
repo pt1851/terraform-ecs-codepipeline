@@ -23,4 +23,4 @@ variable "region" {}
 
 variable "repo_id" {}
 
-variable "common_name"
+variable "common_name" {}
