@@ -1,7 +1,7 @@
 data "aws_caller_identity" "current" {}
 
 resource "aws_s3_bucket" "codebuild" {
-  bucket = "${var.environment}-${var.image_name}-codebuild-bucket"
+  bucket = "${var.common_name}-${var.image_name}-codebuild-bucket"
 }
 
 resource "aws_s3_bucket_acl" "codebuild" {
@@ -10,7 +10,7 @@ resource "aws_s3_bucket_acl" "codebuild" {
 }
 
 resource "aws_iam_role" "codebuild" {
-  name = "${var.environment}-${var.image_name}-codebuild-role"
+  name = "${var.common_name}-${var.image_name}-codebuild-role"
 
   assume_role_policy = <<EOF
 {
@@ -101,8 +101,8 @@ POLICY
 }
 
 resource "aws_codebuild_project" "codebuild" {
-  name          = "${var.environment}-${var.image_name}"
-  description   = "${var.environment}-${var.image_name}"
+  name          = "${var.common_name}-${var.image_name}"
+  description   = "${var.common_name}-${var.image_name}"
   build_timeout = "5"
   service_role  = aws_iam_role.codebuild.arn
 
@@ -129,8 +129,8 @@ resource "aws_codebuild_project" "codebuild" {
 
   logs_config {
     cloudwatch_logs {
-      group_name  = "${var.environment}-${var.image_name}-codebuild"
-      stream_name = "${var.environment}-${var.image_name}"
+      group_name  = "${var.common_name}-${var.image_name}-codebuild"
+      stream_name = "${var.common_name}-${var.image_name}"
     }
 
     s3_logs {
@@ -160,7 +160,7 @@ resource "aws_codebuild_project" "codebuild" {
 }
 
 resource "aws_security_group" "codebuild" {
-  name        = "${var.environment}-${var.image_name}-codebuild-sg"
+  name        = "${var.common_name}-${var.image_name}-codebuild-sg"
   description = "Default SG to alllow traffic from the VPC"
   vpc_id      = var.vpc_id
 
@@ -182,7 +182,7 @@ resource "aws_security_group" "codebuild" {
 
 
 resource "aws_codepipeline" "codepipeline" {
-  name     = "${var.environment}-${var.image_name}"
+  name     = "${var.common_name}-${var.image_name}"
   role_arn = aws_iam_role.codepipeline_role.arn
 
   artifact_store {
@@ -221,12 +221,12 @@ resource "aws_codepipeline" "codepipeline" {
 }
 
 resource "aws_codestarconnections_connection" "codepipeline" {
-  name          = "${var.environment}-${var.image_name}"
+  name          = "${var.common_name}-${var.image_name}"
   provider_type = "GitHub"
 }
 
 resource "aws_s3_bucket" "codepipeline_bucket" {
-  bucket = "${var.environment}-${var.image_name}"
+  bucket = "${var.common_name}-${var.image_name}"
 }
 
 resource "aws_s3_bucket_acl" "codepipeline_bucket_acl" {
@@ -235,7 +235,7 @@ resource "aws_s3_bucket_acl" "codepipeline_bucket_acl" {
 }
 
 resource "aws_iam_role" "codepipeline_role" {
-  name = "${var.environment}-${var.image_name}-codepipeline"
+  name = "${var.common_name}-${var.image_name}-codepipeline"
 
   assume_role_policy = <<EOF
 {
@@ -254,7 +254,7 @@ EOF
 }
 
 resource "aws_iam_role_policy" "codepipeline_policy" {
-  name = "${var.environment}-${var.image_name}-codepipeline"
+  name = "${var.common_name}-${var.image_name}-codepipeline"
   role = aws_iam_role.codepipeline_role.id
 
   policy = <<EOF
@@ -299,7 +299,7 @@ EOF
 #################-- ECR Repo ---#############################
 
 resource "aws_ecr_repository" "repo" {
-  name                 = "${var.environment}-${var.image_name}-codebuild-sg"
+  name                 = "${var.common_name}-${var.image_name}-codebuild"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
