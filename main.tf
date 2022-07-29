@@ -299,7 +299,7 @@ EOF
 #################-- ECR Repo ---#############################
 
 resource "aws_ecr_repository" "repo" {
-  name                 = "${var.common_name}-${var.image_name}-codebuild"
+  name                 = "${var.common_name}-${var.image_name}"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
