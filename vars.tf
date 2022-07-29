@@ -22,3 +22,5 @@ variable "subnet_id" {}
 variable "region" {}
 
 variable "repo_id" {}
+
+variable "common_name"
