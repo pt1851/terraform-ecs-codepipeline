@@ -24,3 +24,5 @@ variable "region" {}
 variable "repo_id" {}
 
 variable "common_name" {}
+
+variable "codebuild_build_timeout" {}
