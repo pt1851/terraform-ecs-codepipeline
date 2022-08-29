@@ -95,8 +95,8 @@ resource "aws_iam_role_policy" "codebuild" {
       "Resource": [
         "${data.aws_s3_bucket.codebuild.arn}",
         "${data.aws_s3_bucket.codebuild.arn}/*",
-        "${data.aws_s3_bucket.codepipeline_bucket.arn}",
-        "${data.aws_s3_bucket.codepipeline_bucket.arn}/*"
+        "${data.aws_s3_bucket.codepipeline.arn}",
+        "${data.aws_s3_bucket.codepipeline.arn}/*"
       ]
     }
   ]
@@ -190,7 +190,7 @@ resource "aws_codepipeline" "codepipeline" {
   role_arn = aws_iam_role.codepipeline_role.arn
 
   artifact_store {
-    location = data.aws_s3_bucket.codepipeline_bucket.bucket
+    location = data.aws_s3_bucket.codepipeline.bucket
     type     = "S3"
 
   }
@@ -275,8 +275,8 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
         "s3:PutObject"
       ],
       "Resource": [
-        "${data.aws_s3_bucket.codepipeline_bucket.arn}",
-        "${data.aws_s3_bucket.codepipeline_bucket.arn}/*"
+        "${data.aws_s3_bucket.codepipeline.arn}",
+        "${data.aws_s3_bucket.codepipeline.arn}/*"
       ]
     },
     {
