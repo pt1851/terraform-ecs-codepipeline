@@ -93,10 +93,10 @@ resource "aws_iam_role_policy" "codebuild" {
         "s3:*"
       ],
       "Resource": [
-        "${aws_s3_bucket.codebuild.arn}",
-        "${aws_s3_bucket.codebuild.arn}/*",
-        "${aws_s3_bucket.codepipeline_bucket.arn}",
-        "${aws_s3_bucket.codepipeline_bucket.arn}/*"
+        "${data.aws_s3_bucket.codebuild.arn}",
+        "${data.aws_s3_bucket.codebuild.arn}/*",
+        "${data.aws_s3_bucket.codepipeline_bucket.arn}",
+        "${data.aws_s3_bucket.codepipeline_bucket.arn}/*"
       ]
     }
   ]
@@ -139,7 +139,7 @@ resource "aws_codebuild_project" "codebuild" {
 
     s3_logs {
       status   = "ENABLED"
-      location = "${aws_s3_bucket.codebuild.id}/${var.common_name}-codebuild/build-log"
+      location = "${data.aws_s3_bucket.codebuild.id}/${var.common_name}-codebuild/build-log"
     }
   }
 
@@ -275,8 +275,8 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
         "s3:PutObject"
       ],
       "Resource": [
-        "${aws_s3_bucket.codepipeline_bucket.arn}",
-        "${aws_s3_bucket.codepipeline_bucket.arn}/*"
+        "${data.aws_s3_bucket.codepipeline_bucket.arn}",
+        "${data.aws_s3_bucket.codepipeline_bucket.arn}/*"
       ]
     },
     {
