@@ -1,13 +1,17 @@
 data "aws_caller_identity" "current" {}
 
-resource "aws_s3_bucket" "codebuild" {
-  bucket = "${var.common_name}-${var.image_name}-codebuild-bucket"
+data "aws_s3_bucket" "codebuild" {
+  bucket = var.codebuild_bucket
 }
 
-resource "aws_s3_bucket_acl" "codebuild" {
-  bucket = aws_s3_bucket.codebuild.id
-  acl    = "private"
+data "aws_s3_bucket" "codepipeline" {
+  bucket =var.codepipeline_bucket
 }
+
+# resource "aws_s3_bucket_acl" "codebuild" {
+#   bucket = aws_s3_bucket.codebuild.id
+#   acl    = "private"
+# }
 
 resource "aws_iam_role" "codebuild" {
   name = "${var.common_name}-${var.image_name}-codebuild-role"
@@ -110,10 +114,10 @@ resource "aws_codebuild_project" "codebuild" {
     type = "CODEPIPELINE"
   }
 
-  cache {
-    type     = "S3"
-    location = aws_s3_bucket.codebuild.bucket
-  }
+  # cache {
+  #   type     = "S3"
+  #   location = aws_s3_bucket.codebuild.bucket
+  # }
 
   environment {
     compute_type                = "BUILD_GENERAL1_SMALL"
@@ -135,7 +139,7 @@ resource "aws_codebuild_project" "codebuild" {
 
     s3_logs {
       status   = "ENABLED"
-      location = "${aws_s3_bucket.codebuild.id}/build-log"
+      location = "${aws_s3_bucket.codebuild.id}/${var.common_name}-codebuild/build-log"
     }
   }
 
@@ -186,7 +190,7 @@ resource "aws_codepipeline" "codepipeline" {
   role_arn = aws_iam_role.codepipeline_role.arn
 
   artifact_store {
-    location = aws_s3_bucket.codepipeline_bucket.bucket
+    location = data.aws_s3_bucket.codepipeline_bucket.bucket
     type     = "S3"
 
   }
@@ -225,14 +229,14 @@ resource "aws_codestarconnections_connection" "codepipeline" {
   provider_type = "GitHub"
 }
 
-resource "aws_s3_bucket" "codepipeline_bucket" {
-  bucket = "${var.common_name}-${var.image_name}"
-}
+# resource "aws_s3_bucket" "codepipeline_bucket" {
+#   bucket = "${var.common_name}-${var.image_name}"
+# }
 
-resource "aws_s3_bucket_acl" "codepipeline_bucket_acl" {
-  bucket = aws_s3_bucket.codepipeline_bucket.id
-  acl    = "private"
-}
+# resource "aws_s3_bucket_acl" "codepipeline_bucket_acl" {
+#   bucket = aws_s3_bucket.codepipeline_bucket.id
+#   acl    = "private"
+# }a
 
 resource "aws_iam_role" "codepipeline_role" {
   name = "${var.common_name}-${var.image_name}-codepipeline"

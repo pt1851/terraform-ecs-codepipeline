@@ -26,3 +26,9 @@ variable "repo_id" {}
 variable "common_name" {}
 
 variable "codebuild_build_timeout" {}
+variable "codebuild_bucket" {
+  
+}
+variable "codepipeline_bucket" {
+  
+}
