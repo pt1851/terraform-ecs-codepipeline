@@ -4,10 +4,6 @@ data "aws_s3_bucket" "codebuild" {
   bucket = var.codebuild_bucket
 }
 
-data "aws_s3_bucket" "codepipeline" {
-  bucket =var.codepipeline_bucket
-}
-
 resource "aws_iam_role" "codebuild" {
   name = "${var.common_name}-${var.image_name}-codebuild-role"
 
@@ -90,8 +86,8 @@ resource "aws_iam_role_policy" "codebuild" {
       "Resource": [
         "${data.aws_s3_bucket.codebuild.arn}",
         "${data.aws_s3_bucket.codebuild.arn}/*",
-        "${data.aws_s3_bucket.codepipeline.arn}",
-        "${data.aws_s3_bucket.codepipeline.arn}/*"
+        "${data.aws_s3_bucket.codepipeline_bucket.arn}",
+        "${data.aws_s3_bucket.codepipeline_bucket.arn}/*"
       ]
     }
   ]
@@ -107,6 +103,11 @@ resource "aws_codebuild_project" "codebuild" {
 
   artifacts {
     type = "CODEPIPELINE"
+  }
+
+  cache {
+    type     = "S3"
+    location = data.aws_s3_bucket.codebuild.bucket
   }
 
   environment {
@@ -129,7 +130,7 @@ resource "aws_codebuild_project" "codebuild" {
 
     s3_logs {
       status   = "ENABLED"
-      location = "${data.aws_s3_bucket.codebuild.id}/${var.common_name}-codebuild/build-log"
+      location = "${data.aws_s3_bucket.codebuild.id}/build-log"
     }
   }
 
@@ -180,7 +181,7 @@ resource "aws_codepipeline" "codepipeline" {
   role_arn = aws_iam_role.codepipeline_role.arn
 
   artifact_store {
-    location = data.aws_s3_bucket.codepipeline.bucket
+    location = data.aws_s3_bucket.codepipeline_bucket.bucket
     type     = "S3"
 
   }
@@ -219,6 +220,9 @@ resource "aws_codestarconnections_connection" "codepipeline" {
   provider_type = "GitHub"
 }
 
+data "aws_s3_bucket" "codepipeline" {
+  bucket =var.codepipeline_bucket
+}
 
 resource "aws_iam_role" "codepipeline_role" {
   name = "${var.common_name}-${var.image_name}-codepipeline"
@@ -240,7 +244,7 @@ EOF
 }
 
 resource "aws_iam_role_policy" "codepipeline_policy" {
-  name = "${var.common_name}-${var.image_name}-ci-codepipeline"
+  name = "${var.common_name}-${var.image_name}-codepipeline"
   role = aws_iam_role.codepipeline_role.id
 
   policy = <<EOF
@@ -257,8 +261,8 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
         "s3:PutObject"
       ],
       "Resource": [
-        "${data.aws_s3_bucket.codepipeline.arn}",
-        "${data.aws_s3_bucket.codepipeline.arn}/*"
+        "${data.aws_s3_bucket.codepipeline_bucket.arn}",
+        "${data.aws_s3_bucket.codepipeline_bucket.arn}/*"
       ]
     },
     {
